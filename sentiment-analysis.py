@@ -15,7 +15,7 @@ def limpa(entrada):
             if len(tchuru) > 2:
                 saida.append(tchuru)
         i+=1
-    return saida 
+    return saida
 
 def limpaConteudo(conteudo):
     for i in range(len(conteudo)):
@@ -67,7 +67,7 @@ class trie(object):
                     raiz = raiz.filhos[ord(palavra[i]) - ord('a')]
 
     def inserePalavra(self, palavra, polaridade):
-        raiz = self.raiz        
+        raiz = self.raiz
         if self.buscaPalavra(palavra):
             self.buscaPalavra(palavra, op=1, pol=polaridade)
 #            print("Palavra ja existem incrementando valor do nodo final")
@@ -97,7 +97,7 @@ class trie(object):
         for i in range(len(conteudo)):
             for w in conteudo[i][0]:
                 self.inserePalavra(palavra = w, polaridade=int(conteudo[i][1]))
-            
+
     def vaiFundo(self, nod, palavra, palavras, sentimento, acumulado, numero, charAtual):
         if nod != None:
             if nod.nro != 0:
@@ -113,7 +113,7 @@ class trie(object):
         raiz = self.raiz
         palavras = []
         sentimento = []
-        acumulado = [] 
+        acumulado = []
         numero = []
         if prefixo != "":
             raiz = self.buscaPalavra(prefixo, 2)
@@ -152,7 +152,7 @@ class trie(object):
             for i in range(len(tuites)):
                 polaridade = self.geraPolaridade(str(tuites[i]))
                 writer.writerow({'tweet': tuites[i][0], 'polaridade': polaridade})
-    
+
     def procPalN(self, palavra):
         pals = self.buscaPalavras(prefixo="")
         for i in range(len(pals[0])):
@@ -173,7 +173,7 @@ class raxixe(object):
     def __init__(self):
         self.tabela = [nodoH() for i in range(599)]
         self.proxTabela = []
-        
+
     def func(self, palavra):
         acu = 0
         for i in range(len(palavra)-1):
@@ -181,7 +181,7 @@ class raxixe(object):
             acu *= 11
         acu += ord(palavra[-1])
         return acu % 599
-    
+
     def buscaPalavra(self, palavra, tuite=0, polaridade=0, op=0):
         """
         op = 0 -> insere ou atualiza palavra com tuite e polaridade dele
@@ -249,7 +249,7 @@ class raxixe(object):
                                 self.tabela[j].palavra = palavra
                                 self.tabela[j].tuites.append([tuite, polaridade])
                                 self.tabela[j].usado = 1
-                                self.tabela[j].ocupado = 1     
+                                self.tabela[j].ocupado = 1
                             elif op == 1:
                                 return []
                 else:
@@ -274,21 +274,21 @@ class raxixe(object):
             toiotes = self.buscaPalavra(palavra = palavraB, op=1)
             for t in toiotes:
                 writer.writerow({palavraB: str(t[0]) + '; ' + str(t[1])})
-    
+
 
 if __name__ == "__main__":
     arqConteudo = "pt.csv"
 #    arqConteudo = input('Digite o nome do arquivo com os tweets (nao esqueca do .csv): ')
-    conteudoO = leArquivo(arqConteudo)    
+    conteudoO = leArquivo(arqConteudo)
     conteudoL = limpaConteudo(conteudoO)
-    
+
     #Parte 1
     arvore = trie()
     arvore.inserePalavras(conteudoL)
     arqSaidaArvore = "tchum.csv"
 #    arqSaidaArvore = input("Digite o nome do arquivo de saida com as palavras e seus sentimentos: ")
     arvore.geraSaidaArvore(arqSaidaArvore)
-    arqTuitesParaPolarizar = "tpp.csv"
+    arqTuitesParaPolarizar = "tweetsparaPrevisaoUFT8.csv"
 #    arqTuitesParaPolarizar = input("Digite o nome do arquivo com os tweets a sere polarizados: ")
     arqSaidaPolarizados = "tchururu.csv"
 #    arqSaidaPolarizados = input("Digite o nome do arquivo de saida com os tweets polarizados: ")
@@ -299,8 +299,8 @@ if __name__ == "__main__":
     tabela.insereTuites(conteudoO = conteudoO, conteudoL = conteudoL)
     palavraBuscada = input("Digite a palavra a ter seus tweets buscados: ")
     arqSaidaHashPal = input("Digite o nome do arquivo de saida com os tweets relacionados a palavra previamente digitada: ")
-    tabela.geraSaidaBusca(arqSaida = arqSaidaHashPal, palavraB = palavraBuscada)    
-    
+    tabela.geraSaidaBusca(arqSaida = arqSaidaHashPal, palavraB = palavraBuscada)
+
 
 #    arvore.geraSaidaArvore("saidA.csv")
 #    arvore.geraSaidaPolarizados(arqTuites="teste.csv", arqSaida="saidaP.csv")
