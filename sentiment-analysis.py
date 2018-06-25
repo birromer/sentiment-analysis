@@ -109,6 +109,7 @@ class trie(object):
                 novaPal = palavra + chr(i + ord('a'))
                 self.vaiFundo(nod.filhos[i], novaPal, palavras, sentimento, acumulado, numero, chr(i + ord('a')))
 
+    #Gera matriz com todas palavras, polaridade relacionada, sentimento acumulado e total de ocorrencias
     def buscaPalavras(self, prefixo=""):
         raiz = self.raiz
         palavras = []
@@ -120,6 +121,7 @@ class trie(object):
         self.vaiFundo(raiz, prefixo, palavras, sentimento, acumulado, numero, '')
         return [palavras, sentimento, acumulado, numero]
 
+    #recebe um tweet e retorna polaridade dele, consultando o dicionario de sentimentos relacionados
     def geraPolaridade(self, tuite):
         tw = limpa(tuite)
         polaridade = 0
@@ -132,6 +134,7 @@ class trie(object):
         else:
             return 0
 
+    #gera arquivo csv com 4 colunas, contendo as palavras armazenadas e as caracteristicas relacionadas
     def geraSaidaArvore(self, arquivo, prefixo=""):
         palsM = self.buscaPalavras(prefixo)
         with open(arquivo, 'w') as f:
