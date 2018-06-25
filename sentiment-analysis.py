@@ -38,9 +38,11 @@ class nodoA(object):
 
 
 class trie(object):
+    #inicializa arvore com raiz sendo um nodo simples
     def __init__(self):
         self.raiz = nodoA()
 
+    #busca palavra na arvore e realiza operacoes de acordo com as opcoes descritas
     def buscaPalavra(self, palavra, op=0, pol=0):
         """
         op = 0 -> retorna se palavra existe
@@ -66,6 +68,7 @@ class trie(object):
                 else:
                     raiz = raiz.filhos[ord(palavra[i]) - ord('a')]
 
+    #insere uma palavra na arvore e atualiza dados relacionados a ela
     def inserePalavra(self, palavra, polaridade):
         raiz = self.raiz
         if self.buscaPalavra(palavra):
@@ -93,11 +96,13 @@ class trie(object):
 #                print("Nodo ja existe, atualizando raiz")
 #                print(palavra[i])
 
+    #insere palavra na arvore a partir da matriz de conteudo
     def inserePalavras(self, conteudo):
         for i in range(len(conteudo)):
             for w in conteudo[i][0]:
                 self.inserePalavra(palavra = w, polaridade=int(conteudo[i][1]))
 
+    #busca recursiva por profundidade, acumulando as palavras e caracteristicas encontradas
     def vaiFundo(self, nod, palavra, palavras, sentimento, acumulado, numero, charAtual):
         if nod != None:
             if nod.nro != 0:
@@ -144,6 +149,7 @@ class trie(object):
             for i in range(len(palsM[0])):
                 writer.writerow({'palavra': palsM[0][i], 'sentimento': palsM[1][i], 'acumulado': palsM[2][i], 'numero': palsM[3][i]})
 
+    #gera arquivo csv com a polaridade do arquivo de entrada de tweets sem polaridade
     def geraSaidaPolarizados(self, arqTuites, arqSaida):
         with open(arqTuites, encoding="utf8") as arqT:
             leitura = csv.reader(arqT)
