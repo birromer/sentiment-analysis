@@ -286,31 +286,52 @@ class raxixe(object):
 
 
 if __name__ == "__main__":
-    arqConteudo = "pt.csv"
-#    arqConteudo = input('Digite o nome do arquivo com os tweets (nao esqueca do .csv): ')
+    """
+    arq com os tuites = pt.csv
+    arq de saida dicionario = tchum.csv  
+    arq com tuites a serem polarizados = tweetsparaPrevisaoUFT8.csv
+    arq saida tuites polarizados = tchururu.csv
+    """
+    
+    arqConteudo = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')
     conteudoO = leArquivo(arqConteudo)
     conteudoL = limpaConteudo(conteudoO)
 
-    #Parte 1
+    #cria arvore r-trie
     arvore = trie()
-    arvore.inserePalavras(conteudoL)
-    arqSaidaArvore = "tchum.csv"
-#    arqSaidaArvore = input("Digite o nome do arquivo de saida com as palavras e seus sentimentos: ")
-    arvore.geraSaidaArvore(arqSaidaArvore)
-    arqTuitesParaPolarizar = "tweetsparaPrevisaoUFT8.csv"
-#    arqTuitesParaPolarizar = input("Digite o nome do arquivo com os tweets a sere polarizados: ")
-    arqSaidaPolarizados = "tchururu.csv"
-#    arqSaidaPolarizados = input("Digite o nome do arquivo de saida com os tweets polarizados: ")
-    arvore.geraSaidaPolarizados(arqTuites=arqTuitesParaPolarizar, arqSaida=arqSaidaPolarizados)
-    #Parte 2
+    #cria hash table
     tabela = raxixe()
-    conteudoO = leArquivo(arqConteudo)
+    #insere conteudo do arquivo na arvore
+    arvore.inserePalavras(conteudoL)   
+    #insere conteudo do arquivo na hash table
     tabela.insereTuites(conteudoO = conteudoO, conteudoL = conteudoL)
+    #testa input para atualizar o dicionario com novos tweets
+    atualizar = input("Deseja atualizar o dicionario com mais tweets? (s/n)")    
+    while atualizar == 's':
+        arqConteudo = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')
+        #cria matriz com conteudo bruto do arquivo de entrada
+        conteudoO = leArquivo(arqConteudo)
+        #limpa a entrada e separa em listas de string os tweets
+        conteudoL = limpaConteudo(conteudoO)
+        #insere todos tweets na arvore
+        arvore.inserePalavras(conteudoL)
+        #insere todas palavras na hash table
+        tabela.insereTuites(conteudoO = conteudoO, conteudoL = conteudoL)
+        atualizar = input("Deseja continuar atualizando? (s/n)")    
+    #gera arquivo csv com o dicionario de palavras e sentimentos
+    arqSaidaArvore = input("Digite o nome do arquivo de saida do dicionario (palavras e seus sentimentos): ")
+    arvore.geraSaidaArvore(arqSaidaArvore)
+    #recebe arquivo com tweets a serem polarizados e gera arquivo com eles avaliados
+    arqTuitesParaPolarizar = input("Digite o nome do arquivo com os tweets a sere polarizados: ")
+    arqSaidaPolarizados = input("Digite o nome do arquivo de saida com os tweets polarizados: ")
+    arvore.geraSaidaPolarizados(arqTuites=arqTuitesParaPolarizar, arqSaida=arqSaidaPolarizados)
+    #entra no loop de pesquisa por palavras:
     palavraBuscada = input("Digite a palavra a ter seus tweets buscados: ")
     arqSaidaHashPal = input("Digite o nome do arquivo de saida com os tweets relacionados a palavra previamente digitada: ")
     tabela.geraSaidaBusca(arqSaida = arqSaidaHashPal, palavraB = palavraBuscada)
-
-
-#    arvore.geraSaidaArvore("saidA.csv")
-#    arvore.geraSaidaPolarizados(arqTuites="teste.csv", arqSaida="saidaP.csv")
-#    arvore.geraSaidaPolarizados(arqTuites="tweetsparaPrevisaoUFT8.csv", arqSaida="saidaP.csv")
+    continua = input("Deseja pesquisar por mais tweets relacionados a uma palavra? (s/n)")
+    while continua == 's':
+        palavraBuscada = input("Digite a palavra a ter seus tweets buscados: ")
+        arqSaidaHashPal = input("Digite o nome do arquivo de saida com os tweets relacionados a palavra previamente digitada: ")
+        tabela.geraSaidaBusca(arqSaida = arqSaidaHashPal, palavraB = palavraBuscada)
+        continua = input("Deseja pesquisar por mais tweets relacionados a uma palavra? (s/n)")
