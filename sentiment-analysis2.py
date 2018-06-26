@@ -1,3 +1,6 @@
+#Bernardo Hummes Flores - 00287689
+#Maria Cecilia Matos Correa - 00287703
+
 import csv
 import unidecode
 
