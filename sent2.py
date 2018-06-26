@@ -56,12 +56,12 @@ class trie(object):
         self.raiz = nodoA()
 
     #busca palavra na arvore e realiza operacoes de acordo com as opcoes descritas
-    def buscaPalavra(self, palavra, op=0, pol=0):
+    def buscaPalavra(self, palavra, ind=0, op=0):
         """
         op = 0 -> retorna se palavra existe
-        op = 1 -> retorna se palavra existe e atualiza dados
+        op = 1 -> retorna se palavra existe e atualiza indices
         op = 2 -> retorna o nodo terminal da palavra
-        op = 3 -> retorna a polaridade da palavra
+        op = 3 -> retorna os indices de onde a palavra se encontra no arquivo
         """
         raiz = self.raiz
         for i in range(len(palavra)):
@@ -70,22 +70,21 @@ class trie(object):
             else:
                 if i == len(palavra)-1:
                     if op == 1:
-                        raiz.filhos[ord(palavra[i]) - ord('a')].acu += int(pol)
-                        raiz.filhos[ord(palavra[i]) - ord('a')].nro += 1
-                        raiz.filhos[ord(palavra[i]) - ord('a')].sent = raiz.filhos[ord(palavra[i]) - ord('a')].acu / raiz.filhos[ord(palavra[i]) - ord('a')].nro
+                        if ind not in raiz.filhos[ord(palavra[i]) - ord('a')].indices:
+                            raiz.filhos[ord(palavra[i]) - ord('a')].indices.append(ind)
                     elif op == 2:
                         return raiz.filhos[ord(palavra[i]) - ord('a')]
                     elif op == 3:
-                        return raiz.filhos[ord(palavra[i]) - ord('a')].sent
+                        return raiz.filhos[ord(palavra[i]) - ord('a')].indices
                     return True
                 else:
                     raiz = raiz.filhos[ord(palavra[i]) - ord('a')]
 
     #insere uma palavra na arvore e atualiza dados relacionados a ela
-    def inserePalavra(self, palavra, polaridade):
+    def inserePalavra(self, palavra, ind):
         raiz = self.raiz
         if self.buscaPalavra(palavra):
-            self.buscaPalavra(palavra, op=1, pol=polaridade)
+            self.buscaPalavra(palavra, op=1, ind=ind)
 #            print("Palavra ja existem incrementando valor do nodo final")
 #            print(palavra[-1])
             return True
@@ -93,9 +92,8 @@ class trie(object):
             if raiz.filhos[ord(palavra[i]) - ord('a')] == None:
                 if i == len(palavra)-1:
                     raiz.filhos[ord(palavra[i]) - ord('a')] = nodoA()
-                    raiz.filhos[ord(palavra[i]) - ord('a')].sent = polaridade
-                    raiz.filhos[ord(palavra[i]) - ord('a')].acu = polaridade
-                    raiz.filhos[ord(palavra[i]) - ord('a')].nro = 1
+                    if ind not in raiz.filhos[ord(palavra[i]) - ord('a')].indices:
+                        raiz.filhos[ord(palavra[i]) - ord('a')].indices.append(ind)
 #                    print("Chegou no fim da palavra e inseriu o nodo")
 #                    print(palavra[i])
                     return True
@@ -113,42 +111,15 @@ class trie(object):
     def inserePalavras(self, conteudo):
         for i in range(len(conteudo)):
             for w in conteudo[i][0]:
-                self.inserePalavra(palavra = w, polaridade=int(conteudo[i][1]))
-
-    #busca recursiva por profundidade, acumulando as palavras e caracteristicas encontradas
-    def vaiFundo(self, nod, palavra, palavras, sentimento, acumulado, numero, charAtual):
-        if nod != None:
-            if nod.nro != 0:
-                palavras.append(palavra)
-                sentimento.append(nod.sent)
-                acumulado.append(nod.acu)
-                numero.append(nod.nro)
-            for i in range(26):
-                novaPal = palavra + chr(i + ord('a'))
-                self.vaiFundo(nod.filhos[i], novaPal, palavras, sentimento, acumulado, numero, chr(i + ord('a')))
-
-    #Gera matriz com todas palavras, polaridade relacionada, sentimento acumulado e total de ocorrencias
-    def buscaPalavras(self, prefixo=""):
-        raiz = self.raiz
-        palavras = []
-        sentimento = []
-        acumulado = []
-        numero = []
-        if prefixo != "":
-            raiz = self.buscaPalavra(prefixo, 2)
-        self.vaiFundo(raiz, prefixo, palavras, sentimento, acumulado, numero, '')
-        return [palavras, sentimento, acumulado, numero]
-
+                self.inserePalavra(palavra = w, ind=i)
     #gera arquivo csv com 4 colunas, contendo as palavras armazenadas e as caracteristicas relacionadas
-    def geraSaidaArvore(self, arquivo, prefixo=""):
-        palsM = self.buscaPalavras(prefixo)
-        with open(arquivo, 'w') as f:
-            topo = ['palavra', 'sentimento', 'acumulado', 'numero']
-            writer = csv.DictWriter(f, topo)
-            writer.writeheader()
-            for i in range(len(palsM[0])):
-                writer.writerow({'palavra': palsM[0][i], 'sentimento': palsM[1][i], 'acumulado': palsM[2][i], 'numero': palsM[3][i]})
-
+    def geraSaidaArvore(self, palavra, indies):
+        with open(palavra+'.txt', 'w') as arqPI:
+            #writer = csv.writer(arqPI, delimiter=';')
+            conteudo = leArquivo('titties.csv')
+            for ind in indies:
+                arqPI.write(conteudo[ind][1] + ';' + str(conteudo[ind][2]) + '\n')
+            
     def procPalN(self, palavra):
         pals = self.buscaPalavras(prefixo="")
         for i in range(len(pals[0])):
@@ -173,7 +144,7 @@ class raxixe(object):
         self.tabela = [nodoH() for i in range(1117)]
         #extensao da tabela
         self.proxTabela = []
-
+    #funcao de hash com acumulacao polinomial
     def func(self, palavra):
         acu = 0
         for i in range(len(palavra)-1):
@@ -181,7 +152,7 @@ class raxixe(object):
             acu *= 11
         acu += ord(palavra[-1])
         return acu % 1117
-
+    #busca palavra na tabela de hash e realizando operacoes de acordo com documentacao a seguir
     def buscaPalavra(self, palavra, pol=0, op=0):
         """
         op = 0 -> insere ou atualiza palavra com informacoes dela
@@ -276,13 +247,13 @@ class raxixe(object):
                         self.tabela[i].ocupado = 1
                     elif op == 1:
                         return 0
-
+    #insere tweets na tabela a partir da matriz conteudo do arquivo de tweets
     def insereTuites(self, conteudoL):
         for i in range(len(conteudoL)):
             #print(conteudoL)
             for w in conteudoL[i][0]:
                 self.buscaPalavra(palavra = w, pol = int(conteudoL[i][1]), op = 0)
-
+    #gera arquivo contendo o dicionario de sentimentos relacionados as palavras, possibilitando reconstrucao em outro momento
     def geraSaidaDicionario(self, arqSaida):
         with open(arqSaida, 'w', encoding="utf8") as arqS:
             topo = ['palavra', 'sentimento', 'acumulado', 'numero', 'usado', 'ocupado']
@@ -290,7 +261,6 @@ class raxixe(object):
             writer.writeheader()
             for i in range(len(self.tabela)):
                 writer.writerow({'palavra':self.tabela[i].palavra, 'sentimento':self.tabela[i].sent, 'acumulado':self.tabela[i].acu, 'numero':self.tabela[i].nro, 'usado':self.tabela[i].usado, 'ocupado':self.tabela[i].ocupado})
-
     #recebe um tweet e retorna polaridade dele, consultando o dicionario de sentimentos relacionados
     def geraPolaridade(self, tuite):
         tw = limpa(tuite)
@@ -303,7 +273,6 @@ class raxixe(object):
             return -1
         else:
             return 0
-
     #gera arquivo csv com a polaridade do arquivo de entrada de tweets sem polaridade
     def geraSaidaPolarizados(self, arqNaoPol, arqSaida):
         with open(arqNaoPol, encoding="utf8") as arqT:
@@ -326,10 +295,8 @@ if __name__ == "__main__":
     arq com tuites a serem polarizados = tweetsparaPrevisaoUFT8.csv
     arq saida tuites polarizados = tchururu.csv
     """
-    
     #recebe nome do arquivo com primeiros tweets a serem inseridos
-#    arqEntrada = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')
-    arqEntrada = 'pt.csv'
+    arqEntrada = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')
     conteudoO = leArquivo(arqEntrada)
     #atualiza arquivo fixo indexado dos tweets
     atualizaArq(conteudoO, arqEntrada)
@@ -339,55 +306,37 @@ if __name__ == "__main__":
     arvore = trie()
     #cria hash table
     tabela = raxixe()
-    
-    
-    #insere palavras do tweets na tabela hash
+    #insere palavras dos tweets na tabela hash
     tabela.insereTuites(conteudoL = conteudoL)
+    #insere palavras dos tweets na arvore trie
+    arvore.inserePalavras(conteudo = conteudoL)
+    #testa se deve repetir processo de insercao
+    atualiza = input("Deseja atualizar o dicionario de sentimentos com um novo arquivo de tweets? (s/n) ")
+    while atualiza == 's':
+       arqEntrada = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')  
+       conteudoO = leArquivo(arqEntrada)
+       #atualiza arquivo fixo indexado dos tweets
+       atualizaArq(conteudoO, arqEntrada)
+       #gera matriz com o conteudo dos tweets limpo para uso posterior
+       conteudoL = limpaConteudo(conteudoO)
+       #insere palavras do tweets na tabela hash
+       tabela.insereTuites(conteudoL = conteudoL)
+       #insere palavras dos tweets na arvore trie
+       arvore.inserePalavras(conteudo = conteudoL)
+       atualiza = input("Deseja atualizar o dicionario de sentimentos com um novo arquivo de tweets? (s/n) ")
     #gera arquivo de saida do dicionario
     arqSaidaDicc = input("Digite o nome do arquivo de saida do dicionario (nao esquecer do .csv): ")
     tabela.geraSaidaDicionario(arqSaidaDicc)
-
     #recebe nome do arquivo com os tweets nao polarizados e do arquivo onde devem ser armazenados apos o processo
     arqNaoPol = input("Digite o nome do arquivo contendo tweets nao polarizados (nao esquecer do .csv): ")
     arqSaidaPol = input("Digite o nome do arquivo de saida para os tweets apos o processo de polarizacao (nao esquecer do .csv): ")
     tabela.geraSaidaPolarizados(arqNaoPol, arqSaidaPol)
-
-    
-# =============================================================================
-#     #insere conteudo do arquivo na arvore
-#     arvore.inserePalavras(conteudoL)   
-#     #insere conteudo do arquivo na hash table
-#     tabela.insereTuites(conteudoO = conteudoO, conteudoL = conteudoL)
-#     #testa input para atualizar o dicionario com novos tweets
-#     atualizar = input("Deseja atualizar o dicionario com mais tweets? (s/n)")    
-#     while atualizar == 's':
-#         arqConteudo = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')
-#         #cria matriz com conteudo bruto do arquivo de entrada
-#         conteudoO = leArquivo(arqConteudo)
-#         #limpa a entrada e separa em listas de string os tweets
-#         conteudoL = limpaConteudo(conteudoO)
-#         #insere todos tweets na arvore
-#         arvore.inserePalavras(conteudoL)
-#         #insere todas palavras na hash table
-#         tabela.insereTuites(conteudoO = conteudoO, conteudoL = conteudoL)
-#         atualizar = input("Deseja continuar atualizando? (s/n)")    
-#     #gera arquivo csv com o dicionario de palavras e sentimentos
-#     arqSaidaArvore = input("Digite o nome do arquivo de saida do dicionario (palavras e seus sentimentos): ")
-#     arvore.geraSaidaArvore(arqSaidaArvore)
-#     #recebe arquivo com tweets a serem polarizados e gera arquivo com eles avaliados
-#     arqTuitesParaPolarizar = input("Digite o nome do arquivo com os tweets a sere polarizados: ")
-#     arqSaidaPolarizados = input("Digite o nome do arquivo de saida com os tweets polarizados: ")
-#     arvore.geraSaidaPolarizados(arqTuites=arqTuitesParaPolarizar, arqSaida=arqSaidaPolarizados)
-#     #entra no loop de pesquisa por palavras:
-#     palavraBuscada = input("Digite a palavra a ter seus tweets buscados: ")
-#     arqSaidaHashPal = input("Digite o nome do arquivo de saida com os tweets relacionados a palavra previamente digitada: ")
-#     tabela.geraSaidaBusca(arqSaida = arqSaidaHashPal, palavraB = palavraBuscada)
-#     continua = input("Deseja pesquisar por mais tweets relacionados a uma palavra? (s/n)")
-#     while continua == 's':
-#         palavraBuscada = input("Digite a palavra a ter seus tweets buscados: ")
-#         arqSaidaHashPal = input("Digite o nome do arquivo de saida com os tweets relacionados a palavra previamente digitada: ")
-#         tabela.geraSaidaBusca(arqSaida = arqSaidaHashPal, palavraB = palavraBuscada)
-#         continua = input("Deseja pesquisar por mais tweets relacionados a uma palavra? (s/n)")
-# 
-# 
-# =============================================================================
+    procura = input("Deseja procurar todos tweets que contem certa palavra? (s/n)")
+    while procura == 's':
+        pal = input("Digite a palavra que deseja buscar: ")
+        indies = arvore.buscaPalavra(palavra=pal, op=3)
+        if indies == False:
+            print("Nao existem ocorrencias dessa palavra")
+        else:
+            arvore.geraSaidaArvore(palavra=pal, indies=indies)
+        procura = input("Deseja procurar todos tweets que contem outra palavra? (s/n)")
