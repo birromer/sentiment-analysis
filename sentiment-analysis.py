@@ -29,9 +29,9 @@ def limpaConteudo(conteudo):
     return res
 
 def atualizaArq(conteudo, nomeOriginal):
-    with open("titties.csv", 'a', encoding="utf8") as arqCSV:
+    with open("fixo.csv", 'a', encoding="utf8") as arqCSV:
         writer = csv.writer(arqCSV)
-        lastInd = len(leArquivo('titties.csv'))
+        lastInd = len(leArquivo('fixo.csv'))
         c = [x + [0] for x in conteudo]
         for i in range(len(conteudo)):
             c[i][0] = (i+lastInd)
@@ -119,7 +119,7 @@ class trie(object):
     def geraSaidaArvore(self, palavra, indies):
         with open(palavra+'.txt', 'w') as arqPI:
             #writer = csv.writer(arqPI, delimiter=';')
-            conteudo = leArquivo('titties.csv')
+            conteudo = leArquivo('fixo.csv')
             for ind in indies:
                 arqPI.write(conteudo[ind][1] + ';' + str(conteudo[ind][2]) + '\n')
 
@@ -189,7 +189,7 @@ class raxixe(object):
                     self.tabela[i].sent = pol
                     self.tabela[i].usado = 1
                     self.tabela[i].ocupado = 1
-                    return
+                    return 0
             if encontrou == 0:
                 if i == len(self.tabela):
                     for j in range(chave):
@@ -210,7 +210,7 @@ class raxixe(object):
                             self.tabela[j].sent = pol
                             self.tabela[j].usado = 1
                             self.tabela[j].ocupado = 1
-                            return
+                            return 0
                     if encontrou == 0:
                         if j == chave-1:
                             for k in range(len(self.proxTabela)):
