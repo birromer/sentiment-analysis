@@ -122,7 +122,7 @@ class trie(object):
             conteudo = leArquivo('titties.csv')
             for ind in indies:
                 arqPI.write(conteudo[ind][1] + ';' + str(conteudo[ind][2]) + '\n')
-            
+
     def procPalN(self, palavra):
         pals = self.buscaPalavras(prefixo="")
         for i in range(len(pals[0])):
@@ -143,8 +143,8 @@ class nodoH(object):
 
 class raxixe(object):
     def __init__(self):
-        #inicializa tabela hash com 599 nodos (numero primo)
-        self.tabela = [nodoH() for i in range(1117)]
+        #inicializa tabela hash com 11113 nodos (numero primo)
+        self.tabela = [nodoH() for i in range(11113)]
         #extensao da tabela
         self.proxTabela = []
     #funcao de hash com acumulacao polinomial
@@ -154,7 +154,7 @@ class raxixe(object):
             acu += ord(palavra[i])
             acu *= 11
         acu += ord(palavra[-1])
-        return acu % 1117
+        return acu % 11113
     #busca palavra na tabela de hash e realizando operacoes de acordo com documentacao a seguir
     def buscaPalavra(self, palavra, pol=0, op=0):
         """
@@ -294,7 +294,7 @@ class raxixe(object):
 if __name__ == "__main__":
     """
     arq com os tuites = pt.csv
-    arq de saida dicionario = tchum.csv  
+    arq de saida dicionario = tchum.csv
     arq com tuites a serem polarizados = tweetsparaPrevisaoUFT8.csv
     arq saida tuites polarizados = tchururu.csv
     """
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     #testa se deve repetir processo de insercao
     atualiza = input("Deseja atualizar o dicionario de sentimentos com um novo arquivo de tweets? (s/n) ")
     while atualiza == 's':
-       arqEntrada = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')  
+       arqEntrada = input('Digite o nome do arquivo com os tweets avaliados (nao esqueca do .csv): ')
        conteudoO = leArquivo(arqEntrada)
        #atualiza arquivo fixo indexado dos tweets
        atualizaArq(conteudoO, arqEntrada)
